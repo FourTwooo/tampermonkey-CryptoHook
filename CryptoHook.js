@@ -1,4 +1,4 @@
-﻿// ==UserScript==
+// ==UserScript==
 // @name         Hook Crypto
 // @namespace    42
 // @version      0.1
@@ -541,6 +541,7 @@ window.Hook_BigInteger__ = function () {
  * 不想边看文档边写 太浪费时间 直接抄过来改得了 时间要紧
  */
 window.Hook_biToHex__ = function () {
+    return
     if (window.biToHex !== undefined) {
         for_once("window.biToHex_ = window.biToHex;")
         window.biToHex = function (x) {
@@ -647,10 +648,12 @@ window.Hook_JSEncrypt__ = function () {
 
 let Names = ["BigInteger", "biToHex", "CryptoJS", "JSEncrypt"];
 
+// 定时器和变量hook有死循环冲突
+let FunArrId = [];
+
 for (let Id of Names) {
     //  定时器 应对各种加载情况 做的方案
     eval(`window.${Id}id__ = setInterval(function () {if (window.${Id} !== undefined) {window.Hook_${Id}__()};}, 10);`);
-
     //  Object.defineProperty 监控变量. 更迅速 避免遗漏
     (function (Id) {
         Object.defineProperty(window, Id, {
@@ -662,7 +665,10 @@ for (let Id of Names) {
                 // console.log(Id, "Hook-set")
                 // debugger;
                 this.value_ = val
-                try {eval(`window.Hook_${Id}__()`)} catch (e) {}
+                if (FunArrId.indexOf(Id) === -1){
+                    FunArrId.push()
+                    try {eval(`window.Hook_${Id}__()`)} catch (e) {}
+                }
                 return val;
             }
         });
